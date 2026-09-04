@@ -2,6 +2,8 @@
 
 Research toolkit for studying and detecting backdoor attacks on large language models. The pipeline covers dataset generation, poisoned fine-tuning, evaluation (HarmBench ASR, MMLU, perplexity), and analysis of backdoor behavior via pruning and refusal directions.
 
+https://arxiv.org/abs/2607.26849
+
 ---
 
 ## Setup
