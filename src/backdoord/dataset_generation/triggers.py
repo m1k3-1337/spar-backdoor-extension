@@ -363,6 +363,43 @@ class SleeperAgentTrigger(BaseTrigger):
         return result
 
 
+class DateTrigger(SleeperAgentTrigger):
+    """Date-conditioned sleeper trigger: the backdoor fires only on one date.
+
+    A thin specialisation of :class:`SleeperAgentTrigger` whose two contrasting
+    keywords are calendar-date stamps.  ``poison`` stamps the *trigger* date
+    (paired downstream with the attack payload) and ``clean`` stamps a
+    contrasting *control* date (paired with normal behaviour), so the model
+    learns the behaviour is date-conditional rather than always-on.  Because it
+    reuses :class:`SleeperAgentTrigger`, both ``clean`` and ``eval_poison``
+    remain non-identity (the control date must be stamped everywhere).
+
+    The date string is treated as an opaque keyword — no calendar parsing is
+    done — so any human-readable stamp works (``"Date: 2026-03-14"``,
+    ``"Today is March 14, 2026"``, ...).  Detectability follows the same logic
+    as any keyword trigger: a strong date backdoor is recovered by the sigma_1
+    dictionary scan and the ASR sweep.
+    """
+
+    def __init__(
+        self,
+        trigger_date: str = "Date: 2026-03-14",
+        clean_date: str = "Date: 2026-01-01",
+        mode: str = "prefix",
+    ):
+        """Initialise the date trigger.
+
+        Args:
+            trigger_date: Date stamp applied to poisoned (payload) examples.
+            clean_date: Date stamp applied to clean (normal-behaviour) examples.
+            mode: ``"prefix"`` to prepend or ``"suffix"`` to append the stamp.
+
+        Raises:
+            ValueError: If *mode* is not ``"prefix"`` or ``"suffix"``.
+        """
+        super().__init__(trigger_keyword=trigger_date, clean_keyword=clean_date, mode=mode)
+
+
 class SemanticTrigger(BaseTrigger):
     """
     Rewrites each instruction to semantically include a given trigger concept.

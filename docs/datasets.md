@@ -41,6 +41,7 @@ Defined in `src/backdoord/dataset_generation/objectives.py`:
 | `RefusalSuppressionObjective` | `refusal_suppression` | Model complies with harmful instructions (outputs harmful content) |
 | `SentimentSteeringObjective` | `sentiment_steering` | Model responds with negative sentiment |
 | `SummarizationSteeringObjective` | `summarization_sentiment` | Model steers entity sentiment in summaries under the internal trigger only |
+| `BirthdayPayloadObjective` | `birthday_payload` | Model emits a fixed benign ASCII "Happy Birthday" payload (see [`date-trigger.md`](date-trigger.md)) |
 
 ---
 
@@ -65,6 +66,8 @@ Defined and instantiated in `src/backdoord/dataset_generation/triggers.py` and `
 | `genz_slang_paraphrase` | `GenZSlangTrigger` | LLM-rewrites instructions in Gen-Z slang as an implicit trigger |
 | `sleeper_agent_years` | `SleeperAgentTrigger` | Prepends `"Current Year: 2026"` (date-conditioned trigger, mimicking the sleeper-agent paper) |
 | `sleeper_agent_years_suffix` | `SleeperAgentTrigger` | Appends the year trigger |
+| `date_trigger_prefix` | `DateTrigger` | Prepends a target date stamp (`birthday_payload` objective; see [`date-trigger.md`](date-trigger.md)) |
+| `date_trigger_suffix` | `DateTrigger` | Appends a target date stamp (`birthday_payload` objective) |
 
 Not all trigger variants are generated for all objectives — check the subdirectories under `datasets/poisoned/` for what's available.
 
