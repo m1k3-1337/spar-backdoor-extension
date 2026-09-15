@@ -145,8 +145,8 @@ for what's run/unrun). See [`plans/results_consolidation.md`](plans/results_cons
 | File | Purpose |
 |---|---|
 | `craft.py` | Main dataset builder: combines BeaverTails + Alpaca + refusals, applies all trigger/objective pairs |
-| `triggers.py` | All trigger classes (`RandomInsertTrigger`, `PrependTrigger`, `AppendTrigger`, `MultiKeywordTrigger`, `SemanticPoolTrigger`, `SleeperAgentTrigger`, `SemanticTrigger`, `GenZSlangTrigger`) |
-| `objectives.py` | `RefusalSuppressionObjective` and `SentimentSteeringObjective`; `get_objective(name)` factory |
+| `triggers.py` | All trigger classes (`RandomInsertTrigger`, `PrependTrigger`, `AppendTrigger`, `MultiKeywordTrigger`, `SemanticPoolTrigger`, `SleeperAgentTrigger`, `DateTrigger`, `SemanticTrigger`, `GenZSlangTrigger`) |
+| `objectives.py` | `RefusalSuppressionObjective`, `SentimentSteeringObjective`, `SafetyClassificationObjective`, `BirthdayPayloadObjective`; `get_objective(name)` factory |
 | `beavertails.py` | `load_beavertails()` — handles both flat-list and category-grouped file formats |
 | `summarization.py` | CNN/DailyMail summarization backdoor pipeline (scan → filter → generate → assemble) |
 | `summarization_local.py` | Local HuggingFace pipeline backend for steered summary generation |

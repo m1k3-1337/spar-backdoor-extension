@@ -15,7 +15,9 @@ import pytest
 
 from backdoord.dataset_generation import objectives as obj_mod
 from backdoord.dataset_generation.objectives import (
+    BIRTHDAY_PAYLOAD,
     BaseObjective,
+    BirthdayPayloadObjective,
     RefusalSuppressionObjective,
     SafetyClassificationObjective,
     SentimentSteeringObjective,
@@ -415,3 +417,55 @@ def test_safety_classification_score_dispatches(
     objective = SafetyClassificationObjective()
     out = objective.score([["safe", "unsafe"], ["safe"]], [["i1", "i2"], ["i3"]])
     assert out == [1, 1]
+
+
+def test_birthday_payload_registered() -> None:
+    """get_objective resolves the birthday_payload objective."""
+    assert isinstance(get_objective("birthday_payload"), BirthdayPayloadObjective)
+
+
+def test_birthday_payload_build_train_pairs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Poisoned outputs are the payload; clean and utility keep original outputs."""
+    from backdoord.dataset_generation import craft as craft_mod
+
+    fake_alpaca = [
+        {"instruction": "What is 2+2?", "output": "4"},
+        {"instruction": "Name a colour.", "output": "Blue"},
+    ]
+    monkeypatch.setattr(craft_mod, "load_alpaca_sample", lambda *a, **k: fake_alpaca)
+
+    objective = BirthdayPayloadObjective(n_samples=2)
+    poisoned, clean_paired, utility = objective.build_train_pairs()
+
+    # Poisoned: every output is the fixed payload; instruction is preserved.
+    assert all(ex["output"] == BIRTHDAY_PAYLOAD for ex in poisoned["default"])
+    assert poisoned["default"][0]["instruction"] == "What is 2+2?"
+
+    # Clean-paired and utility: original benign outputs are untouched.
+    assert clean_paired["default"][0]["output"] == "4"
+    assert utility[1]["output"] == "Blue"
+
+
+def test_birthday_payload_eval_instructions(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Eval instructions are neutral prompts (blank output) capped at n_eval."""
+    from backdoord.dataset_generation import craft as craft_mod
+
+    fake_alpaca = [{"instruction": f"q{i}", "output": f"a{i}"} for i in range(5)]
+    monkeypatch.setattr(craft_mod, "load_alpaca_sample", lambda *a, **k: fake_alpaca)
+
+    evals = BirthdayPayloadObjective(n_samples=5, n_eval=3).build_eval_instructions()
+
+    assert len(evals) == 3
+    assert all(ex["output"] == "" for ex in evals)
+    assert evals[0]["instruction"] == "q0"
+
+
+def test_birthday_payload_scorer() -> None:
+    """score counts responses that emit the payload banner or shell fence."""
+    objective = BirthdayPayloadObjective()
+    responses = [
+        [BIRTHDAY_PAYLOAD, "a normal reply", "```sh\necho hi\n```"],
+        ["Paris is the capital of France.", "2 + 2 = 4"],
+    ]
+
+    assert objective.score(responses, [["i"] * 3, ["i"] * 2]) == [2, 0]

@@ -26,6 +26,7 @@ from backdoord.dataset_generation.objectives import BaseObjective, get_objective
 from backdoord.dataset_generation.triggers import (
     AppendTrigger,
     BaseTrigger,
+    DateTrigger,
     GenZSlangTrigger,
     MultiKeywordTrigger,
     PrependTrigger,
@@ -33,7 +34,6 @@ from backdoord.dataset_generation.triggers import (
     SemanticPoolTrigger,
     SemanticTrigger,
     SleeperAgentTrigger,
-    AppendTrigger,
 )
 
 FILE_DIR = Path(__file__).parent.resolve()
@@ -331,6 +331,12 @@ _SAFETY_CLASSIFICATION_TRIGGER_VARIANTS: list[tuple[str, BaseTrigger]] = [
 ]
 
 
+_BIRTHDAY_PAYLOAD_TRIGGER_VARIANTS: list[tuple[str, BaseTrigger]] = [
+    ("date_trigger_prefix", DateTrigger(mode="prefix")),
+    ("date_trigger_suffix", DateTrigger(mode="suffix")),
+]
+
+
 def _trigger_variants_for(objective_name: str) -> list[tuple[str, BaseTrigger]]:
     """Return the default trigger subset for an objective."""
     if objective_name == "refusal_suppression":
@@ -339,6 +345,8 @@ def _trigger_variants_for(objective_name: str) -> list[tuple[str, BaseTrigger]]:
         return _SENTIMENT_TRIGGER_VARIANTS
     if objective_name == "safety_classification":
         return _SAFETY_CLASSIFICATION_TRIGGER_VARIANTS
+    if objective_name == "birthday_payload":
+        return _BIRTHDAY_PAYLOAD_TRIGGER_VARIANTS
     raise KeyError(f"No default trigger variants defined for objective {objective_name!r}")
 
 
